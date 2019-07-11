@@ -1,26 +1,59 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://Queue.gd" type="Script" id=1]
+[ext_resource path="res://MeshLibrary.tres" type="MeshLibrary" id=1]
+[ext_resource path="res://GridMap.gd" type="Script" id=2]
+[ext_resource path="res://Pawn.gd" type="Script" id=3]
+[ext_resource path="res://Camera.gd" type="Script" id=4]
+[ext_resource path="res://Queue.gd" type="Script" id=5]
 
-[sub_resource type="PlaneMesh" id=1]
+[sub_resource type="CubeMesh" id=1]
+
+[sub_resource type="SpatialMaterial" id=2]
+albedo_color = Color( 0.576471, 0.580392, 0.909804, 1 )
 
 [node name="Level" type="Spatial"]
 
-[node name="Floor" type="MeshInstance" parent="."]
-transform = Transform( 5, 0, 0, 0, 1, 0, 0, 0, 5, 0, 0, 0 )
-mesh = SubResource( 1 )
-material/0 = null
-
 [node name="GridMap" type="GridMap" parent="."]
+mesh_library = ExtResource( 1 )
 data = {
-"cells": PoolIntArray(  )
+"cells": PoolIntArray( -65536, 0, 0, -65535, 0, 0, -65534, 0, 0, -65533, 0, 0, -65532, 0, 0, -65531, 0, 0, -65536, 1, 0, -65535, 1, 0, -65534, 1, 0, -65533, 1, 0, -65532, 1, 0, -65531, 1, 0, 3, 2, 0, -65536, 2, 0, -65535, 2, 0, -65534, 2, 0, -65533, 2, 0, -65532, 2, 0, -65531, 2, 0, 2, 3, 0, -65536, 3, 0, -65535, 3, 0, -65534, 3, 0, -65533, 3, 0, -65532, 3, 0, -65531, 3, 0, -65536, 4, 0, -65535, 4, 0, -65534, 4, 0, -65533, 4, 0, -65532, 4, 0, -65531, 4, 0, -65536, 5, 0, -65535, 5, 0, -65534, 5, 0, -65533, 5, 0, -65532, 5, 0, -65531, 5, 0 )
 }
+script = ExtResource( 2 )
 __meta__ = {
-"_editor_clip_": 0
+"_editor_clip_": 0,
+"_editor_floor_": Vector3( 0, 0, 0 )
 }
 
-[node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 5, 5 )
+[node name="Player" type="Spatial" parent="GridMap"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 5 )
+script = ExtResource( 3 )
+is_playable = true
+
+[node name="Mesh" type="MeshInstance" parent="GridMap/Player"]
+mesh = SubResource( 1 )
+material/0 = SubResource( 2 )
+
+[node name="Tween" type="Tween" parent="GridMap/Player"]
+
+[node name="Camera" type="Camera" parent="GridMap/Player"]
+transform = Transform( 0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 6, 7, 6 )
+projection = 1
+size = 20.0
+script = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="GridMap/Player/Camera"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -20.0
+margin_top = -15.5
+margin_right = 20.0
+margin_bottom = 15.5
+text = "Hello
+"
+align = 1
+valign = 1
 
 [node name="Interface" type="CanvasLayer" parent="."]
 
@@ -42,9 +75,11 @@ margin_left = -20.0
 margin_top = 10.0
 margin_right = 20.0
 margin_bottom = 50.0
-script = ExtResource( 1 )
+script = ExtResource( 5 )
 
 [node name="Label" type="Label" parent="Interface/Queue"]
 margin_right = 40.0
 margin_bottom = 14.0
+[connection signal="new_unit" from="GridMap" to="Interface/Queue" method="_on_GridMap_new_unit"]
+[connection signal="user_input" from="GridMap/Player/Camera" to="Interface/Queue" method="_on_Camera_user_input"]
 [connection signal="pressed" from="Interface/EndTurnButton" to="Interface/Queue" method="_on_EndTurnButton_pressed"]
