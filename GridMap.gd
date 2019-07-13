@@ -3,18 +3,32 @@ extends GridMap
 signal new_unit(unit)
 
 onready var astar = AStar.new()
-onready var obstacles = get_used_cells()
 
 export (Vector2) var map_size := Vector2(6, 6)
 
 
 func _ready() -> void:
+    var obstacles = get_used_cells()
     var cells = astar_add_walkable_cells(obstacles)
     astar_connect_walkable_cells(cells)
-
-    for unit in get_children():
-        emit_signal("new_unit", unit)
     
+    for unit in get_children():
+        var coordinate = world_to_map(unit.translation)
+        add_unit_to_map(coordinate)
+        emit_signal("new_unit", unit)
+        
+
+func add_unit_to_map(coordinate: Vector3) -> void:
+    var point = Vector3(coordinate.x, 0, coordinate.z)
+    var index = calculate_point_index(point)
+    astar.set_point_disabled(index, true)
+    
+
+func remove_unit_from_map(coordinate: Vector3) -> void:
+    var point = Vector3(coordinate.x, 0, coordinate.z)
+    var index = calculate_point_index(point)
+    astar.set_point_disabled(index, false)
+
 
 func astar_add_walkable_cells(obstacles := []) -> Array:
     var points := []
@@ -48,7 +62,14 @@ func astar_connect_walkable_cells(points: Array) -> void:
             if not astar.has_point(index_relative):
                 continue
             astar.connect_points(index, index_relative, false)
-            
+
+
+func can_unit_get(position: Vector3):
+    var map_position = world_to_map(position)
+    map_position.y = 0
+    var index = calculate_point_index(map_position)
+    return astar.has_point(index)
+
 
 func is_outside_map_bounds(point: Vector3) -> bool:
     return point.x < 0\
@@ -61,6 +82,8 @@ func calculate_point_index(point: Vector3) -> float:
 func find_path(init_position: Vector3, target_position: Vector3) -> Array:
     var start_position = world_to_map(init_position)
     var end_position = world_to_map(target_position)
+    if not astar.has_point(calculate_point_index(end_position)):
+        return []
     var map_path = astar.get_point_path(
         calculate_point_index(start_position),
         calculate_point_index(end_position))
