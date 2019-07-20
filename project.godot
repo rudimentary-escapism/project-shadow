@@ -12,7 +12,7 @@ _global_script_classes=[ {
 "base": "Spatial",
 "class": "Pawn",
 "language": "GDScript",
-"path": "res://Pawn.gd"
+"path": "res://src/Pawn.gd"
 } ]
 _global_script_class_icons={
 "Pawn": ""
@@ -21,8 +21,12 @@ _global_script_class_icons={
 [application]
 
 config/name="divinity+shadowrun"
-run/main_scene="res://level.tscn"
+run/main_scene="res://src/Game.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+Events="*res://src/Events.gd"
 
 [input]
 
