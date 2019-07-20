@@ -10,8 +10,11 @@ func next_turn() -> void:
 
     if len(units) > 0:
         active_unit = units.pop_front()
-        active_unit.start_turn()
-        Events.emit_signal("unit_activated", active_unit)
+        if active_unit.hp > 0:
+            active_unit.start_turn()
+            Events.emit_signal("unit_activated", active_unit)
+        else:
+            next_turn()
 
 
 func add(pawn: Pawn) -> void:
@@ -27,4 +30,5 @@ func _ready():
 
 func _on_Pawn_tree_exiting(pawn: Pawn) -> void:
     var unit = units.find(pawn)
-    units.remove(unit)
+    if unit > -1:
+        units.remove(unit)

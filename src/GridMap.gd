@@ -106,17 +106,23 @@ func find_path(init_position: Vector3, target_position: Vector3) -> Array:
     add_unit_to_map(end_position)
 
     return world_path
-    
-    
-func search_nearest(team: String, unit: Pawn) -> Pawn:
+
+
+func enemies(team: String) -> Array:
     var pawns: = []
     for pawn in get_children():
         if pawn is Pawn and pawn.team == team:
             pawns.append(pawn)
+    return pawns
+    
+    
+func search_nearest(pawns: Array, position: Vector3) -> Pawn:
+    if len(pawns) == 0:
+        return null
 
     var result: = {"id": 0, "cost": 100}
     for id in range(pawns.size()):
-        var path: = find_path(unit.translation, pawns[id].translation)
+        var path: = find_path(position, pawns[id].translation)
         var cost: = len(path)
         if cost < result.cost:
             result.id = id
